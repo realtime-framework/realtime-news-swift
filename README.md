@@ -3,6 +3,13 @@ The Realtime Code Hosting service provides you an easy way of executing server-s
 
 To illustrate the main concepts we've built an enterprise mobile app. This repository contains the iOS version of the app where you're able to browse the contents and get APNS notifications whenever new content is published.
 
+## Related repositories
+
+- Realtime News for Android: [https://github.com/realtime-framework/realtime-news-android](https://github.com/realtime-framework/realtime-news-android)
+
+- Realtime News backoffice: [https://github.com/realtime-framework/realtime-news-backoffice](https://github.com/realtime-framework/realtime-news-backoffice)
+
+
 ## More about Realtime Code Hosting
 [http://storage-public.realtime.co/documentation/code-hosting-guide/1.0/overview.html](http://storage-public.realtime.co/documentation/code-hosting-guide/1.0/overview.html)
 

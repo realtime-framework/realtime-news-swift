@@ -21,8 +21,6 @@ class ORTC: NSObject, OrtcClientDelegate{
         self.ortc = OrtcClient.ortcClientWithConfig(self) as? OrtcClient
         self.ortc!.connectionMetadata = METADATA
         self.ortc!.clusterUrl = URL
-        
-        var app = APP_KEY
         self.ortc!.connect(APP_KEY, authenticationToken: ortcToken)
     }
     

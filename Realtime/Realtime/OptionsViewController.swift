@@ -54,8 +54,8 @@ class OptionsViewController: UIViewController, UITableViewDataSource, UITableVie
         self.table_Options.dataSource = self
         self.table_Options.delegate = self
         
-        let version:String = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString") as String
-        let built:String = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleVersion") as String
+        let version:String = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString") as! String
+        let built:String = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleVersion") as! String
         self.labelVersion.text = "   Version: \(version) (\(built))"
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("reAuthenticate"), name: "reAuthenticate", object: nil)
@@ -75,13 +75,13 @@ class OptionsViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     func didReceivedData(data: NSMutableArray) {
-        var menu:NSMutableArray = Utils.orderMenu(data)
+        let menu:NSMutableArray = Utils.orderMenu(data)
         self.removeMenu()
         self.menuData = NSMutableDictionary()
         
         for obj in menu
         {
-            self.addItem(obj as DataObject)
+            self.addItem(obj as! DataObject)
         }
 
         self.table_Options.reloadData()
@@ -95,8 +95,8 @@ class OptionsViewController: UIViewController, UITableViewDataSource, UITableVie
             return
         }
         
-        var copy:NSMutableDictionary = NSMutableDictionary(dictionary: self.menuData!)
-        for (menu, val) in enumerate(copy)
+        let copy:NSMutableDictionary = NSMutableDictionary(dictionary: self.menuData!)
+        for (menu, _) in copy.enumerate()
         {
             self.menuData?.removeObjectForKey(menu)
         }
@@ -118,12 +118,12 @@ class OptionsViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     func tableView(tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
-        var header:UITableViewHeaderFooterView = view as UITableViewHeaderFooterView
-        header.textLabel.textColor = UIColor.peterRiverColor()
-        header.textLabel.font = UIFont.boldSystemFontOfSize(17.0)
+        let header:UITableViewHeaderFooterView = view as! UITableViewHeaderFooterView
+        header.textLabel!.textColor = UIColor.peterRiverColor()
+        header.textLabel!.font = UIFont.boldSystemFontOfSize(17.0)
         if section > 0
         {
-            var border:UIView = UIView(frame: CGRectMake(0, 0, header.frame.size.width, 1))
+            let border:UIView = UIView(frame: CGRectMake(0, 0, header.frame.size.width, 1))
             border.layer.borderColor = UIColor(white: 0.8, alpha: 0.5).CGColor
             border.layer.borderWidth = 1.0
             
@@ -132,8 +132,8 @@ class OptionsViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        var ident:String = "cell"
-        var cell:UITableViewCell? = tableView.dequeueReusableCellWithIdentifier(ident) as? UITableViewCell
+        let ident:String = "cell"
+        var cell:UITableViewCell? = tableView.dequeueReusableCellWithIdentifier(ident) as UITableViewCell?
         
         if cell == nil
         {
@@ -150,9 +150,9 @@ class OptionsViewController: UIViewController, UITableViewDataSource, UITableVie
         }
         
         let allKeys = self.menuData?.allKeys
-        let key = allKeys![indexPath.section] as String
-        let val:NSArray = self.menuData?.objectForKey(key) as NSArray
-        let tag = val.objectAtIndex(indexPath.row) as String
+        let key = allKeys![indexPath.section] as! String
+        let val:NSArray = self.menuData?.objectForKey(key) as! NSArray
+        let tag = val.objectAtIndex(indexPath.row) as! String
         cell?.textLabel?.text = tag
         
         return cell!
@@ -160,7 +160,7 @@ class OptionsViewController: UIViewController, UITableViewDataSource, UITableVie
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         
-        var sections:Int? = self.menuData?.count as Int!
+        let sections:Int? = self.menuData?.count as Int!
         if sections == nil
         {
             return 1
@@ -173,12 +173,12 @@ class OptionsViewController: UIViewController, UITableViewDataSource, UITableVie
         
         if self.menuData?.allKeys == nil || section == self.menuData?.allKeys.count
         {
-            var settings:Int = self.settings?.count as Int!
+            let settings:Int = self.settings?.count as Int!
             return settings
         }
         let allKeys = self.menuData?.allKeys
-        let pSection = allKeys![section] as String
-        let elements:NSArray = self.menuData?.objectForKey(pSection) as NSArray
+        let pSection = allKeys![section] as! String
+        let elements:NSArray = self.menuData?.objectForKey(pSection) as! NSArray
         return elements.count
     }
     
@@ -194,15 +194,15 @@ class OptionsViewController: UIViewController, UITableViewDataSource, UITableVie
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if self.menuData?.allKeys == nil || indexPath.section == self.menuData?.allKeys.count
         {
-            self.delegate?.didTap(self.settings?.objectAtIndex(indexPath.row) as String, onSection: "Session")
+            self.delegate?.didTap(self.settings?.objectAtIndex(indexPath.row) as! String, onSection: "Session")
             return
         }
         
         self.table_Options.deselectRowAtIndexPath(indexPath, animated: false)
-        let allKeys = self.menuData?.allKeys
-        var section:NSString = self.menuData?.allKeys[indexPath.section] as NSString
-        var rows:NSArray = self.menuData?.objectForKey(section) as NSArray
-        self.delegate?.didTap(rows.objectAtIndex(indexPath.row) as String, onSection: section)
+        //let allKeys = self.menuData?.allKeys
+        let section:NSString = self.menuData?.allKeys[indexPath.section] as! NSString
+        let rows:NSArray = self.menuData?.objectForKey(section) as! NSArray
+        self.delegate?.didTap(rows.objectAtIndex(indexPath.row) as! String, onSection: section)
     }
     
     

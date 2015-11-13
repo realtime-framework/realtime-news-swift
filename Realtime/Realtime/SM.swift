@@ -124,7 +124,7 @@ class SM: NSObject {
     
     func appendFilterLesser(filter:NSString, field:String)
     {
-        self.tableRef?.lesserThanString(field, value:filter)
+        self.tableRef?.lesserThanString(field, value:filter as String)
         self.filters?.setObject(field, forKey: filter)
     }
     
@@ -148,7 +148,7 @@ class SM: NSObject {
         
     func checkTimestamp(item:DataObject)
     {
-        var last:String? = NSUserDefaults.standardUserDefaults().objectForKey("lastTime") as? String
+        let last:String? = NSUserDefaults.standardUserDefaults().objectForKey("lastTime") as? String
         
         if last == nil
         {
@@ -157,8 +157,8 @@ class SM: NSObject {
             return
         }
         
-        var first:Double = item.timestamp!.doubleValue
-        var second:Double = NSString(string: last!).doubleValue
+        let first:Double = item.timestamp!.doubleValue
+        let second:Double = NSString(string: last!).doubleValue
         
         if (first > second)
         {
@@ -185,14 +185,14 @@ class SM: NSObject {
             
             if itemSnapshot != nil
             {
-                var val:NSDictionary = itemSnapshot.val() as NSDictionary
-                var item:DataObject = DataObject.loadDataObjectFromDictionary(val)
+                let val:NSDictionary = itemSnapshot.val() as NSDictionary
+                let item:DataObject = DataObject.loadDataObjectFromDictionary(val)
                 
                 item.isOffline = false
                 self.data!.addObject(item)
                 if val.objectForKey("IMG") != nil
                 {
-                    let img:String = val.objectForKey("IMG") as String
+                    let img:String = val.objectForKey("IMG") as! String
                     item.imageURL = img
                     item.imageLoader = ImageLoader(item: item, img: img)
                 }
@@ -216,15 +216,15 @@ class SM: NSObject {
         if self.booted! == false
         {
             self.tableRef?.on(StorageEventType.UPDATE, callback: { (itemSnapshot) -> Void in
-                var val:NSDictionary = itemSnapshot.val() as NSDictionary
-                var item:DataObject = DataObject.loadDataObjectFromDictionary(val)
+                let val:NSDictionary = itemSnapshot.val() as NSDictionary
+                let item:DataObject = DataObject.loadDataObjectFromDictionary(val)
                 item.isOffline = false
                 self.data!.addObject(item)
                 self.delegate?.didReceivedItem!(item)
             })
             
             self.tableRef?.on(StorageEventType.DELETE, callback: { (itemSnapshot) -> Void in
-                var val:NSDictionary = itemSnapshot.val() as NSDictionary
+                let val:NSDictionary = itemSnapshot.val() as NSDictionary
                 self.delegate?.didDeleteItem!(DataObject.loadDataObjectFromDictionary(val))
             })
             
@@ -251,8 +251,8 @@ class SM: NSObject {
         self.tableRef?.getItems({ (itemSnapshot) -> Void in
             if itemSnapshot != nil
             {
-                var val:NSDictionary = itemSnapshot.val() as NSDictionary
-                var item:DataObject = DataObject.loadDataObjectFromDictionary(val)
+                let val:NSDictionary = itemSnapshot.val() as NSDictionary
+                let item:DataObject = DataObject.loadDataObjectFromDictionary(val)
                 item.isOffline = false
                 self.data?.addObject(item)
                 menuOnDiskData.setObject("1", forKey: "\(item.type!)-\(item.tag!).item")
@@ -274,12 +274,12 @@ class SM: NSObject {
         if self.bootedMenu! == false
         {
             self.tableRef?.on(StorageEventType.UPDATE, callback: { (itemSnapshot) -> Void in
-                var val:NSDictionary = itemSnapshot.val() as NSDictionary
+                let val:NSDictionary = itemSnapshot.val() as NSDictionary
                 self.delegate?.didReceivedItem!(DataObject.loadDataObjectFromDictionary(val))
             })
             
             self.tableRef?.on(StorageEventType.DELETE, callback: { (itemSnapshot) -> Void in
-                var val:NSDictionary = itemSnapshot.val() as NSDictionary
+                let val:NSDictionary = itemSnapshot.val() as NSDictionary
                 self.delegate?.didDeleteItem!(DataObject.loadDataObjectFromDictionary(val))
             })
             
@@ -312,7 +312,7 @@ class SM: NSObject {
         if item.type != nil && item.timestamp != nil
         {
             if item!.storeOnDisk() == true{
-                var onDisk:NSMutableDictionary = contentsOnDiskData
+                let onDisk:NSMutableDictionary = contentsOnDiskData
                 onDisk.setObject("1", forKey: "\(item!.type!)-\(item!.timestamp!).item")
                 DataObject.writeContentOndisk()
             }
@@ -342,15 +342,15 @@ class SM: NSObject {
         
         for type in contents!.allKeys
         {
-            let pptype:NSString! = type as NSString
-            var parts:NSArray! = pptype.componentsSeparatedByString("-")
+            let pptype:NSString! = type as! NSString
+            let parts:NSArray! = pptype.componentsSeparatedByString("-")
             if parts == nil || parts.count < 2{
                 return
             }
-            let pType:String! = parts.objectAtIndex(0) as String
-            let pTag:String! = (parts.objectAtIndex(1).componentsSeparatedByString(".") as NSArray).objectAtIndex(0) as String
+            let pType:String! = parts.objectAtIndex(0) as! String
+            let pTag:String! = (parts.objectAtIndex(1).componentsSeparatedByString(".") as NSArray).objectAtIndex(0) as! String
             
-            var obj:DataObject? = DataObject()
+            let obj:DataObject? = DataObject()
             obj?.type = pType
             obj?.tag = pTag
 
@@ -386,15 +386,15 @@ class SM: NSObject {
         
         for type in contents!.allKeys
         {
-            let pptype:NSString! = type as NSString
-            var parts:NSArray! = pptype.componentsSeparatedByString("-")
+            let pptype:NSString! = type as! NSString
+            let parts:NSArray! = pptype.componentsSeparatedByString("-")
             if parts == nil || parts.count < 2{
                 return
             }
-            let ptype:String! = parts.objectAtIndex(0) as String
-            let times:String! = (parts.objectAtIndex(1).componentsSeparatedByString(".") as NSArray).objectAtIndex(0) as String
+            let ptype:String! = parts.objectAtIndex(0) as! String
+            let times:String! = (parts.objectAtIndex(1).componentsSeparatedByString(".") as NSArray).objectAtIndex(0) as! String
             
-            var obj:DataObject? = DataObject.getFromDiskWithType(ptype!, timestamp: times!)
+            let obj:DataObject? = DataObject.getFromDiskWithType(ptype!, timestamp: times!)
             
             if obj != nil{
                 obj!.isOffline = true

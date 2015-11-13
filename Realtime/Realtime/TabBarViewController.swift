@@ -17,7 +17,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
     }
     
     required init(coder aDecoder: NSCoder) {
-         super.init(coder: aDecoder)
+         super.init(coder: aDecoder)!
     }
     
     @IBOutlet weak var filterButton: UIBarButtonItem!
@@ -59,7 +59,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
         NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("getData"), name: "getData", object: nil)
         
         self.swipeLeft = UISwipeGestureRecognizer(target: self, action: Selector("swipeLeft:"))
-        self.swipeLeft!.direction = UISwipeGestureRecognizerDirection.Left | UISwipeGestureRecognizerDirection.Right
+        self.swipeLeft!.direction = UISwipeGestureRecognizerDirection.Left
         self.view.addGestureRecognizer(self.swipeLeft!)
         
         self.swipeRight = UISwipeGestureRecognizer(target: self, action: Selector("swipeRight:"))
@@ -90,7 +90,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
         self.activity?.color = UIColor.redColor()
         self.hideActivityView()
         
-        var activityButton:UIBarButtonItem = UIBarButtonItem(customView: self.activity!)
+        let activityButton:UIBarButtonItem = UIBarButtonItem(customView: self.activity!)
         self.navigationItem.leftBarButtonItems = [self.optionButton, activityButton]
     }
     
@@ -106,7 +106,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
     
     func updateConnectionStatus(){
         if self.viewDidAppear == true{
-            var internetStatus:NetworkStatus = networkReachability.currentReachabilityStatus()
+            let internetStatus:NetworkStatus = networkReachability.currentReachabilityStatus()
             
             if internetStatus != NetworkStatus.NotReachable && isConnected == true{
                 self.setStatus(true)
@@ -132,13 +132,13 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
             NSNotificationCenter.defaultCenter().postNotificationName("reAuthenticate", object: nil, userInfo: nil)
             self.setStatus(true)
             },
-            {() ->Void in
+            errorCallBack: {() ->Void in
                 if storage == nil {
-                    var contents:SM = SM(tableName: TABCONTENTS, storageRef: nil)
+                    let contents:SM = SM(tableName: TABCONTENTS, storageRef: nil)
                     contents.delegate = self
                     contents.loadOffLineData()
                     
-                    var options:SM = SM(tableName: TABTAGS, storageRef: nil)
+                    let options:SM = SM(tableName: TABTAGS, storageRef: nil)
                     options.delegate = self.optionsView
                     options.loadOffLineMenu()
                 }else{
@@ -165,12 +165,12 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
     }
     
     func loadFirstMonthYear() {
-        var data:NSData? = Utils.firstMonthYear()?
+        let data:NSData? = Utils.firstMonthYear()
         if data != nil
         {
-            var temp:String = NSString(data: data!, encoding: NSUTF8StringEncoding)!
+            let temp:String = NSString(data: data!, encoding: NSUTF8StringEncoding)! as String
             Utils.jsonDictionaryFromString(temp, onCompletion: { (dict:NSDictionary) -> Void in
-                firstMonthYear = dict.objectForKey("firstMonthYear") as String!
+                firstMonthYear = dict.objectForKey("firstMonthYear") as! String!
                 }) {
                     (error:NSError) -> Void in
             }
@@ -219,8 +219,8 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
         self.entrys = Utils.orderTopics(data)
         
         if self.entrys != nil && self.entrys!.count > 0{
-            var last:DataObject = self.entrys!.objectAtIndex(self.entrys!.count - 1) as DataObject
-            lastTimestamp = last.timestamp
+            let last:DataObject = self.entrys!.objectAtIndex(self.entrys!.count - 1) as! DataObject
+            lastTimestamp = last.timestamp as? String
         }
         
         if self.entrys?.count < scrollLimit && currentSearchMonth != firstMonthYear
@@ -235,9 +235,9 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
             view.didReceivedData!(self.entrys!)
         }
         
-        if self.entrys != nil && self.entrys?.count > 0{
-            let item:DataObject = self.entrys!.objectAtIndex(0) as DataObject
-        }
+//        if self.entrys != nil && self.entrys?.count > 0{
+//            //let item:DataObject = self.entrys!.objectAtIndex(0) as! DataObject
+//        }
         dispatch_semaphore_signal(flag)
         
         let priority = DISPATCH_QUEUE_PRIORITY_DEFAULT
@@ -261,7 +261,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
     
     
     func configStatusView(){
-        var barFrame:CGRect! = self.navigationController?.navigationBar.frame
+        let barFrame:CGRect! = self.navigationController?.navigationBar.frame
         self.viewframe = self.view.frame
         
         self.statusView = UIView(frame: CGRectMake(barFrame.origin.x, barFrame.size.height, self.view.frame.size.width, 20))
@@ -311,10 +311,10 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
     func filterData(view:SMProtocol, filter:NSString?)
     {
         if (filter != nil) {
-            var res:NSArray = Utils.performSearch(self.entrys!, name: filter, key: "tag")
+            let res:NSArray = Utils.performSearch(self.entrys!, name: filter, key: "tag")
             view.didReceivedData!(NSMutableArray(array: res))
             view.isFiltred = true
-            view.filter = filter!
+            view.filter = filter! as String
         }else
         {
             view.didReceivedData!(self.entrys!)
@@ -324,7 +324,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
     
     func removeFilter()
     {
-        var view:SMProtocol = self.selectedViewController as SMProtocol
+        let view:SMProtocol = self.selectedViewController as! SMProtocol
         view.isFiltred = false;
         self.filterData(view, filter: nil);
     }
@@ -370,7 +370,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
     {
         var temp:NSMutableDictionary?
         var dicKey:NSString?
-        for (key, value) in notifications {
+        for (key, _) in notifications {
             dicKey = key as? NSString
             temp = notifications.objectForKey(key) as? NSMutableDictionary
             break;
@@ -383,7 +383,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
         
         for it in self.entrys!
         {
-            let item:DataObject = it as DataObject
+            let item:DataObject = it as! DataObject
             if ("\(item.type!)-\(item.timestamp!)" == dicKey! as String) {
                 temp?.setObject(item, forKey: "DataObject")
                 break;
@@ -392,7 +392,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
         
         if (temp!.objectForKey("DataObject") != nil) {
             let array:NSArray = self.viewControllers! as NSArray
-            var recent = array.objectAtIndex(0) as RecentsViewController
+            let recent = array.objectAtIndex(0) as! RecentsViewController
             self.selectedViewController = recent
             recent.notificationItem = temp!.objectForKey("DataObject")
             array.objectAtIndex(0).performSegueWithIdentifier("contentView", sender:self)
@@ -402,26 +402,26 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
     
     func didReceivedItem(item:DataObject)
     {
-        var obj:DataObject? = storage?.contentsTableRef?.dataIndex!.objectForKey("\(item.type!)-\(item.timestamp!)") as? DataObject
+        let obj:DataObject? = storage?.contentsTableRef?.dataIndex!.objectForKey("\(item.type!)-\(item.timestamp!)") as? DataObject
         if (obj != nil) {
             obj!.updateItem(item)
             self.setUpdated(obj!)
         }else{
             self.entrys!.addObject(item)
-            var test:NSMutableDictionary = storage?.contentsTableRef?.dataIndex  as NSMutableDictionary!
+            //var test:NSMutableDictionary = storage?.contentsTableRef?.dataIndex  as NSMutableDictionary!
             storage?.contentsTableRef?.dataIndex!.setObject(item, forKey:"\(item.type!)-\(item.timestamp!)")
             self.setNew(item)
         }
         self.entrys = Utils.orderTopics(self.entrys!)
         let array:NSArray = self.viewControllers! as NSArray
         
-        let recent = array.objectAtIndex(0) as SMProtocol
+        let recent = array.objectAtIndex(0) as! SMProtocol
         recent.didReceivedData!(self.entrys!)
         
-        let blog:SMProtocol = array.objectAtIndex(1) as SMProtocol
+        let blog:SMProtocol = array.objectAtIndex(1) as! SMProtocol
         blog.didReceivedData!(self.entrys!)
         
-        let white:SMProtocol = array.objectAtIndex(2) as SMProtocol
+        let white:SMProtocol = array.objectAtIndex(2) as! SMProtocol
         white.didReceivedData!(self.entrys!)
         
         let priority = DISPATCH_QUEUE_PRIORITY_DEFAULT
@@ -466,15 +466,15 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
     
     func didDeleteItem(item:DataObject)
     {
-        let dict:NSMutableDictionary =  storage?.contentsTableRef?.dataIndex as NSMutableDictionary!
-        var entry:DataObject? = storage?.contentsTableRef?.dataIndex!.objectForKey("\(item.type!)-\(item.timestamp!)") as? DataObject
+        //let dict:NSMutableDictionary =  storage?.contentsTableRef?.dataIndex as NSMutableDictionary!
+        let entry:DataObject? = storage?.contentsTableRef?.dataIndex!.objectForKey("\(item.type!)-\(item.timestamp!)") as? DataObject
         if (entry != nil) {
             entry!.removeFromDisk()
             self.entrys!.removeObject(entry!)
             storage?.contentsTableRef?.dataIndex!.removeObjectForKey("\(item.type!)-\(item.timestamp!)")
             storage?.contentsTableRef?.data!.removeObject(entry!)
             
-            var onDisk:NSMutableDictionary = contentsOnDiskData
+            let onDisk:NSMutableDictionary = contentsOnDiskData
             onDisk.removeObjectForKey("\(item.type!)-\(item.timestamp!)")
             DataObject.writeContentOndisk()
             
@@ -482,16 +482,16 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
             
             self.entrys = Utils.orderTopics(self.entrys!)
             if (item.type == "Blog") {
-                let blog:SMProtocol = array.objectAtIndex(1) as SMProtocol
+                let blog:SMProtocol = array.objectAtIndex(1) as! SMProtocol
                 blog.didReceivedData!(self.entrys!)
             }
             
             if (item.type == "White Papers")
             {
-                let blog:SMProtocol = array.objectAtIndex(2) as SMProtocol
+                let blog:SMProtocol = array.objectAtIndex(2) as! SMProtocol
                 blog.didReceivedData!(self.entrys!)
             }
-            let blog:SMProtocol = array.objectAtIndex(0) as SMProtocol
+            let blog:SMProtocol = array.objectAtIndex(0) as! SMProtocol
             blog.didReceivedData!(self.entrys!)
         }
     }
@@ -500,14 +500,14 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
     func setOptionsView(){
         self.optionsView = OptionsViewController(nibName: "OptionsViewController", bundle: NSBundle.mainBundle())
         self.optionsView!.delegate = self;
-        var selfFrame:CGRect = self.view.frame;
+        let selfFrame:CGRect = self.view.frame;
         self.optionsView!.view.frame = CGRectMake(selfFrame.size.width * (-1), selfFrame.origin.y, selfFrame.size.width, selfFrame.size.height - self.tabBar.frame.size.height)
         self.view.addSubview(self.optionsView!.view)
     }
     
     func tabBarController(tabBarController: UITabBarController, didSelectViewController viewController: UIViewController) {
         self.title = viewController.title
-        self.setFiltredButton(viewController as SMProtocol)
+        self.setFiltredButton(viewController as! SMProtocol)
     }
     
     @IBAction func actionRemoveFilter(sender: AnyObject) {
@@ -530,7 +530,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
         for view in array {
             if (view.title == onSection) {
                 self.toggleMenu()
-                self.filterData(view as SMProtocol, filter: option)
+                self.filterData(view as! SMProtocol, filter: option)
                 self.selectedViewController = view as? UIViewController
                 self.title = view.title
             }
@@ -551,9 +551,9 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
         }
         
         self.optionsView!.isAnimating = true
-        var selfFrame:CGRect = self.view.frame
-        var optionFrame:CGRect  = self.optionsView!.view.frame
-        var tableFrame:CGRect = self.optionsView!.table_Options.frame
+        let selfFrame:CGRect = self.view.frame
+        let optionFrame:CGRect  = self.optionsView!.view.frame
+        let tableFrame:CGRect = self.optionsView!.table_Options.frame
         
         if (self.optionsView!.isVisible == true) {
             
@@ -575,16 +575,17 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
         }
     }
 
-    func navigationControllerSupportedInterfaceOrientations(navigationController: UINavigationController) -> Int {
-        return Int(UIInterfaceOrientationMask.Portrait.rawValue)
+    func navigationControllerSupportedInterfaceOrientations(navigationController: UINavigationController) -> UIInterfaceOrientationMask {
+        return UIInterfaceOrientationMask.Portrait
     }
     
     override func shouldAutorotate() -> Bool {
         return false
     }
     
-    override func supportedInterfaceOrientations() -> Int {
-        return Int(UIInterfaceOrientationMask.Portrait.rawValue)
+    
+    override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
+        return UIInterfaceOrientationMask.Portrait
     }
     
 }

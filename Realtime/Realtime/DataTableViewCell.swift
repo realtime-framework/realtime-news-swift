@@ -51,7 +51,7 @@ class DataTableViewCell: UITableViewCell {
     }
 
     required init(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
+        super.init(coder: aDecoder)!
     }
     
     override func setSelected(selected: Bool, animated: Bool) {
@@ -74,13 +74,13 @@ class DataTableViewCell: UITableViewCell {
             self.imageLogo.image = UIImage(data: self.data!.image!)
         }    
         self.labelDate.text = "  \(self.data!.date!)"
-        self.labelTag.text = self.data!.tag
+        self.labelTag.text = self.data!.tag as? String
         
-        self.labelDescription.text = self.data!.textDescription;
+        self.labelDescription.text = self.data!.textDescription as? String;
         self.labelDescription.numberOfLines = 8;
         self.labelDescription.sizeToFit()
         
-        self.labelTitle.text = self.data!.title
+        self.labelTitle.text = self.data!.title as? String
         self.buttonDataState.hidden = false;
         
         if (self.data!.onDisk == true) {
@@ -123,31 +123,35 @@ class DataTableViewCell: UITableViewCell {
         if (self.data!.onDisk == false && (self.data!.onDiskData == nil || self.data!.onDiskData == "")) {
             
             if ((self.data!.body != nil) && (self.data!.body != "")) {
-                var siteData:NSData = self.data!.body!.dataUsingEncoding(NSUTF8StringEncoding)!
+                let siteData:NSData = self.data!.body!.dataUsingEncoding(NSUTF8StringEncoding)!
                 siteData.writeToFile("\(DataObject.applicationDocumentsDirectory())/\(self.data!.type!)-\(self.data!.timestamp!).onDiskData", atomically: true)
                 self.data!.onDisk = true;
                 self.data!.onDiskData = NSString(data: siteData, encoding: NSUTF8StringEncoding)
                 self.data!.storeOnDisk()
-                var onDisk:NSMutableDictionary = contentsOnDiskData
+                let onDisk:NSMutableDictionary = contentsOnDiskData
                 onDisk.setObject("1", forKey: "\(self.data!.type!)-\(self.data!.timestamp!).item")
                 DataObject.writeContentOndisk()
                 self.setCellForData(self.data!, forRow: 0)
                 self.setNeedsDisplay()
                 return
             }else if ((self.data!.url != nil) && (self.data!.url != "")) {
-                var error:NSError?
-                var response:NSURLResponse?
-                var siteData:NSData = NSURLConnection.sendSynchronousRequest(NSURLRequest(URL: NSURL(string: self.data!.url!)!), returningResponse: &response, error: &error)!
-                siteData.writeToFile("\(DataObject.applicationDocumentsDirectory())/\(self.data!.type!)-\(self.data!.timestamp!).onDiskData", atomically: true)
-                self.data!.onDisk = true;
-                self.data!.onDiskData = NSString(data: siteData, encoding: NSUTF8StringEncoding)
-                self.data!.storeOnDisk()
-                var onDisk:NSMutableDictionary = contentsOnDiskData
-                onDisk.setObject("1", forKey: "\(self.data!.type!)-\(self.data!.timestamp!).item")
-                DataObject.writeContentOndisk()
-                self.setCellForData(self.data!, forRow: 0)
-                self.setNeedsDisplay()
-                return
+                do{
+
+                    var response:NSURLResponse?
+                    let siteData:NSData = try NSURLConnection.sendSynchronousRequest(NSURLRequest(URL: NSURL(string: self.data!.url! as String)!), returningResponse: &response)
+                    siteData.writeToFile("\(DataObject.applicationDocumentsDirectory())/\(self.data!.type!)-\(self.data!.timestamp!).onDiskData", atomically: true)
+                    self.data!.onDisk = true;
+                    self.data!.onDiskData = NSString(data: siteData, encoding: NSUTF8StringEncoding)
+                    self.data!.storeOnDisk()
+                    let onDisk:NSMutableDictionary = contentsOnDiskData
+                    onDisk.setObject("1", forKey: "\(self.data!.type!)-\(self.data!.timestamp!).item")
+                    DataObject.writeContentOndisk()
+                    self.setCellForData(self.data!, forRow: 0)
+                    self.setNeedsDisplay()
+                    return
+                }catch{
+                
+                }
             }
         }
         

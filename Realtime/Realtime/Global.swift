@@ -12,10 +12,10 @@ import UIKit
 //BEGIN APP_KEY CONFIG
 #if DEBUG
     //INSERT HERE YOUR DEVELOPMENT APP_KEY
-    let APP_KEY = "Fsdl9p"//"NcOeQJ"
+    let APP_KEY = "DEV_APP_KEY"//"NcOeQJ"
 #else
     //INSERT HERE YOUR PRODUCTION APP_KEY
-    let APP_KEY = "Fsdl9p"
+    let APP_KEY = "PRD_APP_KEY"
 #endif
 //END APP_KEY CONFIG
 

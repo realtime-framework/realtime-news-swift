@@ -21,7 +21,7 @@ class ContentViewController: UIViewController, UIWebViewDelegate, UINavigationCo
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.title = model!.title!
+        self.title = model!.title! as String
         self.navigationController?.delegate = self
         self.webViewContent.scalesPageToFit = true
         self.webViewContent.delegate = self;
@@ -43,13 +43,13 @@ class ContentViewController: UIViewController, UIWebViewDelegate, UINavigationCo
 
         
         if ((self.model!.isOffline == false) && (model!.body != nil) && (model!.body != "")) {
-            self.webViewContent.loadHTMLString(self.buildHTMLBody(model!.body!), baseURL: nil)
+            self.webViewContent.loadHTMLString(self.buildHTMLBody(model!.body!) as String, baseURL: nil)
             return;
         }
         
         if ((self.model!.isOffline == false) && (model!.url != nil) && (model!.url != "")) {
             var request:NSURLRequest
-            var nsurl:NSURL? = NSURL(string: model!.url!)
+            let nsurl:NSURL? = NSURL(string: model!.url! as String)
             if nsurl == nil
             {
                 self.navigationController?.popViewControllerAnimated(true)
@@ -61,7 +61,7 @@ class ContentViewController: UIViewController, UIWebViewDelegate, UINavigationCo
         }
         
         if ((model!.onDiskData != nil) && (model!.onDiskData != "")) {
-            self.webViewContent.loadHTMLString(self.buildHTMLBody(model!.onDiskData!), baseURL:nil)
+            self.webViewContent.loadHTMLString(self.buildHTMLBody(model!.onDiskData!) as String, baseURL:nil)
             return;
         }
     }
@@ -69,16 +69,22 @@ class ContentViewController: UIViewController, UIWebViewDelegate, UINavigationCo
     
     func buildHTMLBody(body:NSString) -> NSString{
         
-        var appCSS:NSURL = NSBundle.mainBundle().URLForResource("app", withExtension: "css")!
+        let appCSS:NSURL = NSBundle.mainBundle().URLForResource("app", withExtension: "css")!
         
-        var bootCSS:NSURL = NSBundle.mainBundle().URLForResource("bootstrap", withExtension: "css")!
+        let bootCSS:NSURL = NSBundle.mainBundle().URLForResource("bootstrap", withExtension: "css")!
         
-        var fontCSS:NSURL = NSBundle.mainBundle().URLForResource("fontawesome", withExtension: "css")!
+        let fontCSS:NSURL = NSBundle.mainBundle().URLForResource("fontawesome", withExtension: "css")!
         
         let path:NSString = NSBundle.mainBundle().pathForResource("template", ofType: "html")!
-        var template:NSString = NSString(contentsOfFile: path, encoding: NSUTF8StringEncoding, error: nil)!
+        let template:NSString;
         
-        var html:NSString = NSString(format:template, appCSS.description, bootCSS.description, fontCSS.description, body)
+        do {
+            template = try NSString(contentsOfFile: path as String, encoding: NSUTF8StringEncoding)
+        } catch _ {
+            template = ""
+        }
+        
+        let html:NSString = NSString(format:template, appCSS.description, bootCSS.description, fontCSS.description, body)
         
         return html
     }
@@ -95,15 +101,15 @@ class ContentViewController: UIViewController, UIWebViewDelegate, UINavigationCo
         return true
     }
     
-    func navigationControllerSupportedInterfaceOrientations(navigationController: UINavigationController) -> Int {
-        let mask = Int(UIInterfaceOrientationMask.AllButUpsideDown.rawValue)
+    func navigationControllerSupportedInterfaceOrientations(navigationController: UINavigationController) -> UIInterfaceOrientationMask {
+        let mask = UIInterfaceOrientationMask.AllButUpsideDown
         return mask
     }
     
     
     func configStatusView()
     {
-        var barFrame:CGRect? = self.navigationController!.navigationBar.frame
+        let barFrame:CGRect? = self.navigationController!.navigationBar.frame
         
         self.statusView = UIView(frame: CGRectMake(barFrame!.origin.x, barFrame!.size.height, self.view.frame.size.width, 20))
         self.statusLabel = UILabel(frame: CGRectMake(0, 0, self.statusView!.frame.size.width, 20))
@@ -135,13 +141,12 @@ class ContentViewController: UIViewController, UIWebViewDelegate, UINavigationCo
     }
     
     
-    func webView(webView: UIWebView, didFailLoadWithError error: NSError) {
+    func webView(webView: UIWebView, didFailLoadWithError error: NSError?) {
         self.activityIndicator!.stopAnimating()
     }
     
     func webViewDidFinishLoad(webView: UIWebView) {
-        var url:String = webView.request?.URL.description as String!
-        if(webView.request?.URL.description != model!.url && model!.isOffline == false)
+        if(webView.request?.URL!.description != model!.url && model!.isOffline == false)
         {
             self.navigationController?.toolbarHidden = false
         }else{
@@ -158,14 +163,14 @@ class ContentViewController: UIViewController, UIWebViewDelegate, UINavigationCo
     
     func addLinks()
     {
-        var appCSS:NSURL = NSBundle.mainBundle().URLForResource("app", withExtension: "css")!
+        let appCSS:NSURL = NSBundle.mainBundle().URLForResource("app", withExtension: "css")!
         
-        var bootCSS:NSURL = NSBundle.mainBundle().URLForResource("bootstrap", withExtension: "css")!
+        let bootCSS:NSURL = NSBundle.mainBundle().URLForResource("bootstrap", withExtension: "css")!
         
-        var fontCSS:NSURL = NSBundle.mainBundle().URLForResource("fontawesome", withExtension: "css")!
+        let fontCSS:NSURL = NSBundle.mainBundle().URLForResource("fontawesome", withExtension: "css")!
         
-        var js:NSString = NSString(format: "var headHTML = document.getElementsByTagName('head')[0].innerHTML; headHTML    += '<link type=\"text/css\" rel=\"stylesheet\" href=\"%@\">'; headHTML    += '<link type=\"text/css\" rel=\"stylesheet\" href=\"%@\">'; headHTML    += '<link type=\"text/css\" rel=\"stylesheet\" href=\"%@\">'; document.getElementsByTagName('head')[0].innerHTML = headHTML;", appCSS, bootCSS, fontCSS)
-        var result:NSString = self.webViewContent!.stringByEvaluatingJavaScriptFromString(js)!
+        let js:NSString = NSString(format: "var headHTML = document.getElementsByTagName('head')[0].innerHTML; headHTML    += '<link type=\"text/css\" rel=\"stylesheet\" href=\"%@\">'; headHTML    += '<link type=\"text/css\" rel=\"stylesheet\" href=\"%@\">'; headHTML    += '<link type=\"text/css\" rel=\"stylesheet\" href=\"%@\">'; document.getElementsByTagName('head')[0].innerHTML = headHTML;", appCSS, bootCSS, fontCSS)
+        self.webViewContent!.stringByEvaluatingJavaScriptFromString(js as String)!
     }
     
     
@@ -179,7 +184,7 @@ class ContentViewController: UIViewController, UIWebViewDelegate, UINavigationCo
     
     @IBAction func back(sender: AnyObject) {
         if (model!.body != nil && model!.body != "" && (self.webViewContent.canGoBack == false)) {
-             self.webViewContent.loadHTMLString(self.buildHTMLBody(model!.body!), baseURL: nil)
+             self.webViewContent.loadHTMLString(self.buildHTMLBody(model!.body!) as String, baseURL: nil)
             return;
         }
         self.webViewContent.goBack()

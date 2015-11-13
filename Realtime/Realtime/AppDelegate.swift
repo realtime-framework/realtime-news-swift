@@ -15,43 +15,39 @@ var ortc:ORTC?
 
 
 @UIApplicationMain
-class AppDelegate: RealtimePushAppDelegate, UIApplicationDelegate{
+class AppDelegate: RealtimePushAppDelegate{
 
     override func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         super.application(application, didFinishLaunchingWithOptions: launchOptions)
         networkReachability.startNotifier()
         
-        var data:NSData? = Utils.firstMonthYear()?
+        let data:NSData? = Utils.firstMonthYear()
         if data != nil
         {
-            var temp:String = NSString(data: data!, encoding: NSUTF8StringEncoding)!
+            let temp:String = NSString(data: data!, encoding: NSUTF8StringEncoding)! as String
             Utils.jsonDictionaryFromString(temp, onCompletion: { (dict:NSDictionary) -> Void in
-                firstMonthYear = dict.objectForKey("firstMonthYear") as String!
+                firstMonthYear = dict.objectForKey("firstMonthYear") as! String!
                 }) { (error:NSError) -> Void in
                 
             }
         }
         
-        var dateFormat:String = Utils.getCurrentMonthYear()
-        var logedIn:Bool = false
-        var isLoged:String? = NSUserDefaults.standardUserDefaults().objectForKey("logedIn") as? String
+        let isLoged:String? = NSUserDefaults.standardUserDefaults().objectForKey("logedIn") as? String
         
         if (isLoged != nil && isLoged == "1")
         {
-            logedIn = true
-            var result:String? = NSUserDefaults.standardUserDefaults().objectForKey("token") as? String
+            let result:String? = NSUserDefaults.standardUserDefaults().objectForKey("token") as? String
             if result != nil
             {
                 token = result
-                var storyboard:UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-                var controller:UIViewController = storyboard.instantiateViewControllerWithIdentifier("rootNav") as UIViewController
+                let storyboard:UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+                let controller:UIViewController = storyboard.instantiateViewControllerWithIdentifier("rootNav") as UIViewController
                 
                 self.window.rootViewController = controller
                 self.window.makeKeyWindow()
             }
         }
         ortcToken = Utils.GetUUID()
-        var response:NSData? = Utils.authenticateMessagingToken()
         ortc = ORTC()
         ortc!.setClient()
 
@@ -83,17 +79,15 @@ class AppDelegate: RealtimePushAppDelegate, UIApplicationDelegate{
         super.application(application, didReceiveRemoteNotification: userInfo)
         var aps:NSDictionary? = userInfo as NSDictionary
         aps = aps?.objectForKey("aps") as? NSDictionary
-
-        let state = application.applicationState
         
         if aps != nil && application.applicationState != UIApplicationState.Active
         {
-            var data:NSMutableDictionary = NSMutableDictionary()
-            data.setObject(aps?.objectForKey("Type") as String, forKey: "Type")
-            data.setObject(aps?.objectForKey("Timestamp") as String, forKey: "Timestamp")
+            let data:NSMutableDictionary = NSMutableDictionary()
+            data.setObject(aps?.objectForKey("Type") as! String, forKey: "Type")
+            data.setObject(aps?.objectForKey("Timestamp") as! String, forKey: "Timestamp")
             
-            var type:String = aps?.objectForKey("Type") as String
-            var timestamp:String = aps?.objectForKey("Timestamp") as String
+            let type:String = aps?.objectForKey("Type") as! String
+            let timestamp:String = aps?.objectForKey("Timestamp") as! String
             
             notifications.setObject(data, forKey: "\(type)-\(timestamp)")
             NSNotificationCenter.defaultCenter().postNotificationName("notification", object: nil)

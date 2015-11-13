@@ -85,7 +85,7 @@ class DataObject: NSObject {
     
     class func MenuOnDisk() -> NSMutableDictionary?{
         let path = DataObject.applicationDocumentsDirectory()+"/ONDISKMENU"
-        var temp:NSMutableDictionary? = NSMutableDictionary(contentsOfFile: path)
+        let temp:NSMutableDictionary? = NSMutableDictionary(contentsOfFile: path)
         if temp != nil
         {
             menuOnDiskData = temp!
@@ -109,7 +109,7 @@ class DataObject: NSObject {
     
     class func contentsOnDisk() -> NSMutableDictionary?{
         let path = DataObject.applicationDocumentsDirectory()+"/ONDISK"
-        var temp:NSMutableDictionary? = NSMutableDictionary(contentsOfFile: path)
+        let temp:NSMutableDictionary? = NSMutableDictionary(contentsOfFile: path)
         if temp != nil
         {
             contentsOnDiskData = temp!
@@ -128,7 +128,7 @@ class DataObject: NSObject {
         }
         
         let path = DataObject.applicationDocumentsDirectory()
-        return self.data!.writeToFile(path + "/"+self.type!+"-"+self.timestamp!+".item", atomically: true)
+        return self.data!.writeToFile("\(path)/\(self.type!)-\(self.timestamp!).item", atomically: true)
     }
     
     
@@ -136,21 +136,24 @@ class DataObject: NSObject {
     {
         let filemanager:NSFileManager = NSFileManager.defaultManager()
         let path = DataObject.applicationDocumentsDirectory()
+        do{
+            try filemanager.removeItemAtPath("\(path)/\(self.type!)-\(self.timestamp!).item")
+            try filemanager.removeItemAtPath("\(path)/\(self.type!)-\(self.timestamp!).data")
+            try filemanager.removeItemAtPath("\(path)/\(self.type!)-\(self.timestamp!).body")
+        }catch{
         
-        filemanager.removeItemAtPath(path + "/"+self.type!+"-"+self.timestamp!+".item", error: nil)
-        filemanager.removeItemAtPath(path + "/"+self.type!+"-"+self.timestamp!+".data", error: nil)
-        filemanager.removeItemAtPath(path + "/"+self.type!+"-"+self.timestamp!+".body", error: nil)
+        }
     }
     
     class func getFromDiskWithType(type:NSString, timestamp:NSString) -> DataObject?
     {
-        var temp:DataObject = DataObject()
+        let temp:DataObject = DataObject()
         temp.type = type
         temp.timestamp = timestamp
         
         let path = DataObject.applicationDocumentsDirectory()
         
-        var file:String = "\(path)/\(temp.type!)-\(temp.timestamp!).item"
+        let file:String = "\(path)/\(temp.type!)-\(temp.timestamp!).item"
 
         let val:NSDictionary? = NSDictionary(contentsOfFile: file)
         if val == nil
@@ -162,13 +165,13 @@ class DataObject: NSObject {
     
     class func getMenuFromDiskWithType(type:NSString, tag:NSString) -> DataObject?
     {
-        var temp:DataObject = DataObject()
+        let temp:DataObject = DataObject()
         temp.type = type
         temp.tag = tag
         
         let path = DataObject.applicationDocumentsDirectory()
         
-        var file:String = "\(path)/\(temp.type!)-\(temp.tag!).item"
+        let file:String = "\(path)/\(temp.type!)-\(temp.tag!).item"
         
         let val:NSDictionary? = NSDictionary(contentsOfFile: file)
         if val == nil
@@ -182,13 +185,13 @@ class DataObject: NSObject {
     
     class func loadDataObjectFromDictionary(val:NSDictionary) -> DataObject
     {
-        var img:NSData?
+        let img:NSData? = nil
         var item:DataObject?
         
         let desc = val.objectForKey("Description") as? String
         if desc != nil
         {
-            item = DataObject(desc: val.objectForKey("Description") as String, img: img, onDisk: false, pDate: Utils.convertTimeStamp(val.objectForKey("Timestamp")!.doubleValue))
+            item = DataObject(desc: val.objectForKey("Description") as! String, img: img, onDisk: false, pDate: Utils.convertTimeStamp(val.objectForKey("Timestamp")!.doubleValue))
             item!.monthYear = val.objectForKey("MonthYear") as? NSString
             item!.timestamp = val.objectForKey("Timestamp") as? NSString
             item!.data = val
@@ -196,16 +199,16 @@ class DataObject: NSObject {
             
             if val.objectForKey("URL") != nil
             {
-                item!.url = val.objectForKey("URL") as String!
+                item!.url = val.objectForKey("URL") as! String!
             }
             
             if val.objectForKey("Body") != nil
             {
-                item!.body = val.objectForKey("Body") as String!
+                item!.body = val.objectForKey("Body") as! String!
                 item!.url = "about:blank"
             }
             
-            var ponDiskData:NSData? =  NSData(contentsOfFile: "\(DataObject.applicationDocumentsDirectory())/\(item!.type!)-\(item!.timestamp!).onDiskData")
+            let ponDiskData:NSData? =  NSData(contentsOfFile: "\(DataObject.applicationDocumentsDirectory())/\(item!.type!)-\(item!.timestamp!).onDiskData")
             
             if ponDiskData?.length > 0
             {
@@ -213,12 +216,12 @@ class DataObject: NSObject {
                 item!.onDisk = true
             }
             
-            item!.title = val.objectForKey("Title") as String
-            item!.tag = val.objectForKey("Tag") as String
+            item!.title = val.objectForKey("Title") as! String
+            item!.tag = val.objectForKey("Tag") as! String
         }
         else
         {
-            item = DataObject(tag: val.objectForKey("Tag") as String, type: val.objectForKey("Type") as String)
+            item = DataObject(tag: val.objectForKey("Tag") as! String, type: val.objectForKey("Type") as! String)
         }
         return item!
     }
@@ -226,7 +229,7 @@ class DataObject: NSObject {
     
     class func applicationDocumentsDirectory() -> String
     {
-        return NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)[0] as NSString
+        return NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)[0] as String
     }
     
     

@@ -22,11 +22,15 @@ class ImageLoader {
     
     func getImage(){
         {
-            self.data = NSURLConnection.sendSynchronousRequest(NSURLRequest(URL: NSURL(string: self.item.imageURL!)!), returningResponse: nil, error: nil)
+            do{
+                try self.data = NSURLConnection.sendSynchronousRequest(NSURLRequest(URL: NSURL(string: self.item.imageURL!)!), returningResponse: nil)
+            }catch{
+            
+            }
             if self.data != nil{
                 self.item.image = NSData(data: self.data!)
                 let path = DataObject.applicationDocumentsDirectory()
-                self.item.image!.writeToFile(path + "/"+self.item.type!+"-"+self.item.timestamp!+".data", atomically: true)
+                self.item.image!.writeToFile("\(path)/\(self.item.type!)-\(self.item.timestamp!).data", atomically: true)
             }
         } ~> {
             if self.item.image != nil{

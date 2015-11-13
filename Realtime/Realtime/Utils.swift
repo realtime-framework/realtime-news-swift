@@ -22,51 +22,47 @@ class Utils: NSObject {
     }
     
     class func setBlueButton(bt:UIButton){
-        var image:UIImage = UIImage(named: "Button.png")!
-        var insets:UIEdgeInsets = UIEdgeInsetsMake(18, 18, 18, 18)
-        var stretchedImage:UIImage = image.resizableImageWithCapInsets(insets)
+        let image:UIImage = UIImage(named: "Button.png")!
+        let insets:UIEdgeInsets = UIEdgeInsetsMake(18, 18, 18, 18)
+        let stretchedImage:UIImage = image.resizableImageWithCapInsets(insets)
         bt.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
         bt.setBackgroundImage(stretchedImage, forState: UIControlState.Normal)
     }
     
     class func setBlueBarButton(bt:UIButton){
-        var image:UIImage = UIImage(named: "Button.png")!
-        var insets:UIEdgeInsets = UIEdgeInsetsMake(18, 18, 18, 18)
-        var stretchedImage:UIImage = image.resizableImageWithCapInsets(insets)
+        let image:UIImage = UIImage(named: "Button.png")!
+        let insets:UIEdgeInsets = UIEdgeInsetsMake(18, 18, 18, 18)
+        let stretchedImage:UIImage = image.resizableImageWithCapInsets(insets)
         bt.setImage(stretchedImage, forState: UIControlState.Normal)
     }
 
     class func jsonDictionaryFromString(text:String, onCompletion:(NSDictionary) -> Void, onError:(NSError) -> Void ){
-        var error:NSError?
-        var jsonData:NSData = text.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
-        var json:NSDictionary? = NSJSONSerialization.JSONObjectWithData(jsonData, options:nil, error: &error) as? NSDictionary
-        
-        if error == nil{
+        let jsonData:NSData = text.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
+        var json:NSDictionary?
+        do{
+            json = try NSJSONSerialization.JSONObjectWithData(jsonData, options:NSJSONReadingOptions.init(rawValue: 0)) as? NSDictionary
             onCompletion(json!)
-        }else
-        {
-            onError(error!)
+        }catch{
+             onError(NSError(domain: "json parsing error", code: -1, userInfo: nil))
         }
+        
     }
     
     class func jsonStringFromDictionary(dict:NSDictionary, onCompletion:(NSString) -> Void, onError:(NSError) -> Void ){
-        var error:NSError?
-        var jsonString:NSString
-        var jsonData:NSData =  NSJSONSerialization.dataWithJSONObject(dict, options: NSJSONWritingOptions.PrettyPrinted, error: &error)!
-        
-        if error != nil{
+        var jsonData:NSData
+        do{
+            jsonData = try NSJSONSerialization.dataWithJSONObject(dict, options: NSJSONWritingOptions.PrettyPrinted)
             onCompletion(NSString(data: jsonData, encoding: NSUTF8StringEncoding)!)
-        }else
-        {
-            onError(error!)
+        }catch{
+            onError(NSError(domain: "json parsing error", code: -1, userInfo: nil))
         }
     }
 
     class func convertTimeStamp(data:Double) -> String {
-        var time:Double = data / 1000
-        var sourceDate:NSDate = NSDate(timeIntervalSince1970: time)
+        let time:Double = data / 1000
+        let sourceDate:NSDate = NSDate(timeIntervalSince1970: time)
         
-        var dateFormater:NSDateFormatter = NSDateFormatter()
+        let dateFormater:NSDateFormatter = NSDateFormatter()
         dateFormater.locale = NSLocale.currentLocale()
         dateFormater.dateFormat = "dd/MM/yyyy HH:mm"
         
@@ -74,43 +70,43 @@ class Utils: NSObject {
     }
     
     class func orderTopics(messages:NSMutableArray) -> NSMutableArray {
-        var sortDescriptor:NSSortDescriptor = NSSortDescriptor(key: "timestamp", ascending: false)
-        var sortDescriptors:NSArray = NSArray(object: sortDescriptor)
-        var sortedArray:NSMutableArray = NSMutableArray(array: messages.sortedArrayUsingDescriptors(sortDescriptors))
+        let sortDescriptor:NSSortDescriptor = NSSortDescriptor(key: "timestamp", ascending: false)
+        let sortDescriptors:NSArray = NSArray(object: sortDescriptor)
+        let sortedArray:NSMutableArray = NSMutableArray(array: messages.sortedArrayUsingDescriptors(sortDescriptors as! [NSSortDescriptor]))
         return sortedArray
     }
     
     class func orderMenu(messages:NSMutableArray) -> NSMutableArray {
-        var sortDescriptor:NSSortDescriptor = NSSortDescriptor(key: "tag", ascending: true)
-        var sortDescriptors:NSArray = NSArray(object: sortDescriptor)
-        var sortedArray:NSMutableArray = NSMutableArray(array: messages.sortedArrayUsingDescriptors(sortDescriptors))
+        let sortDescriptor:NSSortDescriptor = NSSortDescriptor(key: "tag", ascending: true)
+        let sortDescriptors:NSArray = NSArray(object: sortDescriptor)
+        let sortedArray:NSMutableArray = NSMutableArray(array: messages.sortedArrayUsingDescriptors(sortDescriptors as! [NSSortDescriptor]))
         return sortedArray
     }
     
     class func goToLogin() {
         NSUserDefaults.standardUserDefaults().setObject("0", forKey: "logedIn")
         NSUserDefaults.standardUserDefaults().synchronize()
-        var storyboard:UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-        var vc:UIViewController = storyboard.instantiateViewControllerWithIdentifier("root") as UIViewController!
+        let storyboard:UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let vc:UIViewController = storyboard.instantiateViewControllerWithIdentifier("root") as UIViewController!
         
-        storage!.removeListeners()
+        storage?.removeListeners()
         storage = nil
-        var appDelegate:AppDelegate = UIApplication.sharedApplication().delegate? as AppDelegate
+        let appDelegate:AppDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         appDelegate.window.rootViewController = vc
     }
     
     class func authenticateStorageTokenForUser(user: String, pass: String) -> NSData?  {
-        let url:String = "https://codehosting.realtime.co/\(APP_KEY)/authenticate?"
+        let url:String = "https://storage-codehosting-stag-useast1.realtime.co/\(APP_KEY)/authenticate?"
         
-        var urlString:NSMutableString = NSMutableString()
+        let urlString:NSMutableString = NSMutableString()
         
         urlString.appendFormat("user=%@&", user)
         urlString.appendFormat("password=%@&", pass)
         urlString.appendFormat("role=%@", "iOSApp")
         
-        var request:NSMutableURLRequest = NSMutableURLRequest(URL: NSURL(string: "\(url)\(urlString)")!, cachePolicy: NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData, timeoutInterval: 10.0)
+        let request:NSMutableURLRequest = NSMutableURLRequest(URL: NSURL(string: "\(url)\(urlString)")!, cachePolicy: NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData, timeoutInterval: 10.0)
         
-        var data:NSData = urlString.dataUsingEncoding(NSUTF8StringEncoding) as NSData!
+        let data:NSData = urlString.dataUsingEncoding(NSUTF8StringEncoding) as NSData!
         
         request.HTTPMethod = "POST"
         request.setValue("\(data.length)", forHTTPHeaderField: "Content-Length")
@@ -118,22 +114,27 @@ class Utils: NSObject {
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         
         var resp:NSURLResponse?
-        var error:NSError?
+        var resData:NSData?
+        do{
+            resData = try NSURLConnection.sendSynchronousRequest(request, returningResponse: &resp)
+        }catch{
         
-        return NSURLConnection.sendSynchronousRequest(request, returningResponse: &resp, error: &error)
+        }
+        
+        return resData
     }
     
     class func authenticateMessagingToken() -> NSData?  {
-        let url:String = "https://codehosting.realtime.co/\(APP_KEY)/saveAuthentication?"
+        let url:String = "https://storage-codehosting-stag-useast1.realtime.co/\(APP_KEY)/saveAuthentication?"
         
-        var urlString:NSMutableString = NSMutableString()
+        let urlString:NSMutableString = NSMutableString()
         
 
         urlString.appendFormat("token=%@", ortcToken!)
         
-        var request:NSMutableURLRequest = NSMutableURLRequest(URL: NSURL(string: "\(url)\(urlString)")!, cachePolicy: NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData, timeoutInterval: 10.0)
+        let request:NSMutableURLRequest = NSMutableURLRequest(URL: NSURL(string: "\(url)\(urlString)")!, cachePolicy: NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData, timeoutInterval: 10.0)
         
-        var data:NSData = urlString.dataUsingEncoding(NSUTF8StringEncoding) as NSData!
+        let data:NSData = urlString.dataUsingEncoding(NSUTF8StringEncoding) as NSData!
         
         request.HTTPMethod = "POST"
         request.setValue("\(data.length)", forHTTPHeaderField: "Content-Length")
@@ -141,60 +142,65 @@ class Utils: NSObject {
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         
         var resp:NSURLResponse?
-        var error:NSError?
-        var result:NSData? = NSURLConnection.sendSynchronousRequest(request, returningResponse: &resp, error: &error)
+
+        var result:NSData?
         
-        return result?
+        do{
+            result = try NSURLConnection.sendSynchronousRequest(request, returningResponse: &resp)
+        }catch{
+        
+        }
+        return result
     }
 
     class func firstMonthYear() -> NSData?  {
-        let url:String = "https://codehosting.realtime.co/\(APP_KEY)/firstMonthYear"
+        let url:String = "https://storage-codehosting-stag-useast1.realtime.co/\(APP_KEY)/firstMonthYear"
         
-        var request:NSMutableURLRequest = NSMutableURLRequest(URL: NSURL(string: "\(url)")!, cachePolicy: NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData, timeoutInterval: 10.0)
+        let request:NSMutableURLRequest = NSMutableURLRequest(URL: NSURL(string: "\(url)")!, cachePolicy: NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData, timeoutInterval: 10.0)
         
         request.HTTPMethod = "GET"
         
         var resp:NSURLResponse?
-        var error:NSError?
-        var result:NSData? = NSURLConnection.sendSynchronousRequest(request, returningResponse: &resp, error: &error)
+        var result:NSData?
         
-        return result?
+        do{
+            result = try NSURLConnection.sendSynchronousRequest(request, returningResponse: &resp)
+        }catch{
+            
+        }
+        
+        return result
     }
 
 
     
     class func reAuth(callback:(result:Bool) -> Void, errorCallBack:() -> Void) {
-        var storageRef:StorageRef = StorageRef(APP_KEY, privateKey: nil, authenticationToken: token);
+        let storageRef:StorageRef = StorageRef(APP_KEY, privateKey: nil, authenticationToken: token);
         
         storageRef.isAuthenticated(token, success: { (success) -> Void in
-            var result:Bool
-            if (success == 1)
+
+            if (success == true)
             {
-                result = true
                 callback(result: true)
                 return
             }
-            else
-            {
-                result = false
-            }
             
-            var user:String? = NSUserDefaults.standardUserDefaults().objectForKey("user") as? String
-            var pass:String? = NSUserDefaults.standardUserDefaults().objectForKey("pass") as? String
+            let user:String? = NSUserDefaults.standardUserDefaults().objectForKey("user") as? String
+            let pass:String? = NSUserDefaults.standardUserDefaults().objectForKey("pass") as? String
             
             if (user == nil || pass == nil)
             {
                 Utils.goToLogin()
             }
             
-            var rsp:NSData? = Utils.authenticateStorageTokenForUser(user!, pass: pass!) as NSData?
+            let rsp:NSData? = Utils.authenticateStorageTokenForUser(user!, pass: pass!) as NSData?
             if rsp == nil
             {
                 Utils.goToLogin()
                 return
             }
             
-            Utils.jsonDictionaryFromString(NSString(data: rsp!, encoding: NSUTF8StringEncoding)!, onCompletion:
+            Utils.jsonDictionaryFromString(NSString(data: rsp!, encoding: NSUTF8StringEncoding)! as String, onCompletion:
             { (jsonDict) -> Void in
                 let json:NSDictionary = jsonDict as NSDictionary
                 if (json.objectForKey("token") != nil)
@@ -218,9 +224,9 @@ class Utils: NSObject {
     
     class func performSearch(array:NSArray, name:NSString?, key:NSString) -> NSArray
     {
-        var args:String = ".*\(name!).*"
-        var query:NSString = NSString(format: "%@ MATCHES [c] \"%@\"", key, args)
-        var predicate:NSPredicate? = NSPredicate(format: query)
+        let args:String = ".*\(name!).*"
+        let query:NSString = NSString(format: "%@ MATCHES [c] \"%@\"", key, args)
+        let predicate:NSPredicate? = NSPredicate(format: query as String)
         return array.filteredArrayUsingPredicate(predicate!)
     }
 
@@ -231,15 +237,15 @@ class Utils: NSObject {
 
     
     class func getCurrentMonthYear() -> String {
-        var date:NSDate = NSDate()
-        var formater:NSDateFormatter = NSDateFormatter()
+        let date:NSDate = NSDate()
+        let formater:NSDateFormatter = NSDateFormatter()
         formater.dateFormat = "MM/yyyy"
         return formater.stringFromDate(date)
     }
     
     class func getPreviousMonth(month:String) -> String
     {
-        var parts:NSArray = month.componentsSeparatedByString("/");
+        let parts:NSArray = month.componentsSeparatedByString("/");
         var mm:Int = parts.objectAtIndex(0).integerValue
         var yy:Int = parts.objectAtIndex(1).integerValue
         

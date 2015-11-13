@@ -17,7 +17,7 @@ var lastTimestamp:String?
 class RecentsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, SMProtocol {
     
     required init(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
+        super.init(coder: aDecoder)!
     }
     
     var isFiltred:Bool = false
@@ -39,7 +39,7 @@ class RecentsViewController: UIViewController, UITableViewDataSource, UITableVie
         if self.entrys != nil && self.entrys!.count > 0
         {
             for item in self.entrys!{
-                let obj:DataObject = item as DataObject
+                let obj:DataObject = item as! DataObject
                 obj.isNew = false
                 obj.isUpdated = false
             }
@@ -66,14 +66,14 @@ class RecentsViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        var indent:NSString = "cell"
-        var cell:DataTableViewCell? = tableView.dequeueReusableCellWithIdentifier(indent) as? DataTableViewCell
+        let indent:NSString = "cell"
+        var cell:DataTableViewCell? = tableView.dequeueReusableCellWithIdentifier(indent as String) as? DataTableViewCell
         if (cell == nil) {
-            cell = DataTableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: indent)
+            cell = DataTableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: indent as String)
         }
         cell?.imageLogo.image = nil
         
-        var item:DataObject = self.entrys!.objectAtIndex(indexPath.row) as DataObject
+        let item:DataObject = self.entrys!.objectAtIndex(indexPath.row) as! DataObject
         cell!.setCellForData(item, forRow: indexPath.row)
         self.reload_distance = cell?.frame.size.height
         
@@ -83,11 +83,11 @@ class RecentsViewController: UIViewController, UITableViewDataSource, UITableVie
     var reload_distance:CGFloat?
     
     func scrollViewDidScroll(scrollView: UIScrollView) {
-        var height:CGFloat = scrollView.frame.size.height;
+        let height:CGFloat = scrollView.frame.size.height;
         
-        var contentYoffset:CGFloat = scrollView.contentOffset.y;
+        let contentYoffset:CGFloat = scrollView.contentOffset.y;
         
-        var distanceFromBottom:CGFloat = scrollView.contentSize.height - contentYoffset;
+        let distanceFromBottom:CGFloat = scrollView.contentSize.height - contentYoffset;
         
         if(distanceFromBottom < height && self.entrys != nil)
         {
@@ -99,12 +99,12 @@ class RecentsViewController: UIViewController, UITableViewDataSource, UITableVie
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if (self.notificationItem != nil) {
-            var content:ContentViewController = segue.destinationViewController as ContentViewController
+            let content:ContentViewController = segue.destinationViewController as! ContentViewController
             content.model = self.notificationItem as? DataObject
             self.notificationItem = nil;
         }else{
-            let selectedIndex = self.tableRecents.indexPathForCell(sender as UITableViewCell)
-            var content:ContentViewController = segue.destinationViewController as ContentViewController
+            let selectedIndex = self.tableRecents.indexPathForCell(sender as! UITableViewCell)
+            let content:ContentViewController = segue.destinationViewController as! ContentViewController
             content.model = self.entrys!.objectAtIndex(selectedIndex!.row as Int) as? DataObject
         }
         
@@ -113,10 +113,10 @@ class RecentsViewController: UIViewController, UITableViewDataSource, UITableVie
     
     override func shouldPerformSegueWithIdentifier(identifier: String?, sender: AnyObject?) -> Bool {
         if (identifier == "contentView") {
-            let selectedIndex = self.tableRecents.indexPathForCell(sender as UITableViewCell)
-            var obj:DataObject = self.entrys!.objectAtIndex(selectedIndex!.row as Int) as DataObject
+            let selectedIndex = self.tableRecents.indexPathForCell(sender as! UITableViewCell)
+            let obj:DataObject = self.entrys!.objectAtIndex(selectedIndex!.row as Int) as! DataObject
             if ((obj.isOffline == true) && (obj.onDisk == false)) {
-                var alert:UIAlertView = UIAlertView(title: "Information", message: "You are currently offline and this content is not saved locally. Please try again later.", delegate: nil, cancelButtonTitle: "OK")
+                let alert:UIAlertView = UIAlertView(title: "Information", message: "You are currently offline and this content is not saved locally. Please try again later.", delegate: nil, cancelButtonTitle: "OK")
                 alert.show()
                 return false;
             }
